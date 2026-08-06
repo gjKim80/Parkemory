@@ -1,5 +1,5 @@
 /* ============================================================
-   8-BIT ISOMETRIC PARKING LOT CANVAS RENDERER (CHROMA KEY & ALIGN)
+   8-BIT ISOMETRIC PARKING LOT CANVAS RENDERER (100% VISIBILITY GUARANTEED)
    ============================================================ */
 
 class IsometricParkingRenderer {
@@ -34,36 +34,41 @@ class IsometricParkingRenderer {
       img.src = src;
       img.onload = () => {
         this.carImages[key] = img;
-        // Process white background removal (Chroma key)
         this.processedCarCanvases[key] = this.removeWhiteBackground(img);
         if (this.currentData) this.render(this.currentData);
       };
     });
   }
 
-  // Remove white background (Chroma keying) from car image sprite
   removeWhiteBackground(img) {
-    const offCanvas = document.createElement('canvas');
-    offCanvas.width = img.naturalWidth || 300;
-    offCanvas.height = img.naturalHeight || 300;
-    const offCtx = offCanvas.getContext('2d');
-    
-    offCtx.drawImage(img, 0, 0);
-    const imgData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
-    const data = imgData.data;
+    try {
+      const offCanvas = document.createElement('canvas');
+      const w = img.naturalWidth || 200;
+      const h = img.naturalHeight || 200;
+      offCanvas.width = w;
+      offCanvas.height = h;
+      const offCtx = offCanvas.getContext('2d');
+      
+      offCtx.drawImage(img, 0, 0);
 
-    // Filter white pixels (r, g, b > 225) -> set alpha = 0
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      if (r > 225 && g > 225 && b > 225) {
-        data[i + 3] = 0; // Transparent
+      const imgData = offCtx.getImageData(0, 0, w, h);
+      const data = imgData.data;
+
+      // Chroma key: Filter white background (r, g, b > 215)
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        if (r > 215 && g > 215 && b > 215) {
+          data[i + 3] = 0;
+        }
       }
-    }
 
-    offCtx.putImageData(imgData, 0, 0);
-    return offCanvas;
+      offCtx.putImageData(imgData, 0, 0);
+      return offCanvas;
+    } catch (e) {
+      return img;
+    }
   }
 
   resizeCanvas() {
@@ -75,7 +80,7 @@ class IsometricParkingRenderer {
   }
 
   // Convert 2D Grid (x, y) to 2.5D Isometric (isoX, isoY)
-  toIso(x, y, originX, originY, tileW = 90, tileH = 45) {
+  toIso(x, y, originX, originY, tileW = 88, tileH = 44) {
     const isoX = originX + (x - y) * (tileW / 2);
     const isoY = originY + (x + y) * (tileH / 2);
     return { x: isoX, y: isoY };
@@ -109,7 +114,7 @@ class IsometricParkingRenderer {
       }
     }
 
-    // Draw Clear Parking Lines (White/Yellow Pixel Lines around slots)
+    // Draw Clear Parking Slot Lines
     for (let r = 0; r < gridRows; r++) {
       for (let c = 0; c < gridCols; c++) {
         const { x, y } = this.toIso(c, r, originX, originY, tileW, tileH);
@@ -122,31 +127,34 @@ class IsometricParkingRenderer {
     const pillarPos = this.toIso(0, 0, originX, originY, tileW, tileH);
     this.drawIsoPillar(pillarPos.x, pillarPos.y, tileW, tileH, parkingData ? parkingData.detail || 'A-04' : 'A-01');
 
-    // Draw Level Floor Banner Text (e.g. [B2] BASEMENT 2)
+    // Draw Level Floor Banner Text
     const floorText = parkingData ? parkingData.floor : 'B1';
     const placeText = parkingData ? parkingData.place : '집';
     this.drawFloorHeader(floorText, placeText);
 
-    // If parking data exists, draw parked car perfectly inside center slot (1, 1)
+    // Draw Parked Car inside Center Slot (1, 1)
     if (parkingData) {
       const carPos = this.toIso(1, 1, originX, originY, tileW, tileH);
 
-      // Draw Spotlight/Glow inside the parking spot line
+      // Draw Spotlight/Glow inside parking slot
       this.drawSpotlight(carPos.x, carPos.y, tileW, tileH);
 
-      // Draw Isometric Car Image (Without White Background)
+      // Render Car (Image sprite with fallback)
       const carImageKey = parkingData.vehicleImageKey || 'benz_silver';
-      const carCanvas = this.processedCarCanvases[carImageKey] || this.processedCarCanvases['benz_silver'];
+      let drawable = this.processedCarCanvases[carImageKey] || this.carImages[carImageKey];
 
-      if (carCanvas) {
-        // Position car precisely inside the isometric parking lines slot
-        const carW = 96;
-        const carH = 96;
-        this.ctx.drawImage(carCanvas, carPos.x - carW / 2, carPos.y - carH / 2 - 14, carW, carH);
+      if (drawable) {
+        const carW = 100;
+        const carH = 100;
+        this.ctx.drawImage(drawable, carPos.x - carW / 2, carPos.y - carH / 2 - 14, carW, carH);
+      } else {
+        // Draw 8-Bit Pixel Car Sprite dynamically
+        const isSilver = (carImageKey === 'benz_silver');
+        this.drawDynamicPixelIsoCar(carPos.x, carPos.y - 12, isSilver ? '#d0d4dc' : '#22252a');
       }
 
       // Draw Floating Pixel Tag over car
-      this.drawFloatingTag(carPos.x, carPos.y - 62, `${parkingData.vehicleName} (${parkingData.vehiclePlate})`);
+      this.drawFloatingTag(carPos.x, carPos.y - 64, `${parkingData.vehicleName} (${parkingData.vehiclePlate})`);
     } else {
       // Draw Empty Slot Indicator
       const emptyPos = this.toIso(1, 1, originX, originY, tileW, tileH);
@@ -173,25 +181,21 @@ class IsometricParkingRenderer {
     this.ctx.strokeStyle = isTarget ? '#ffea00' : '#4a4768';
     this.ctx.lineWidth = isTarget ? 3 : 2;
 
-    // Draw solid parking bay lines
     this.ctx.beginPath();
-    // Left boundary
     this.ctx.moveTo(x - w / 2, y);
     this.ctx.lineTo(x, y - h / 2);
     this.ctx.lineTo(x + w / 2, y);
-    // Right boundary
     this.ctx.moveTo(x - w / 2, y);
     this.ctx.lineTo(x, y + h / 2);
     this.ctx.lineTo(x + w / 2, y);
     this.ctx.stroke();
 
-    // Inner parking slot T-mark / Stopper line
     if (isTarget) {
       this.ctx.strokeStyle = '#39ff14';
       this.ctx.lineWidth = 2;
       this.ctx.beginPath();
-      this.ctx.moveTo(x - 15, y - 6);
-      this.ctx.lineTo(x + 15, y + 6);
+      this.ctx.moveTo(x - 18, y - 4);
+      this.ctx.lineTo(x + 18, y + 4);
       this.ctx.stroke();
     }
   }
@@ -200,23 +204,19 @@ class IsometricParkingRenderer {
     const pillarH = 54;
     const pw = 30;
 
-    // Pillar sides
     this.ctx.fillStyle = '#56537a';
     this.ctx.fillRect(x - pw / 2, y - pillarH - h / 4, pw / 2, pillarH);
 
     this.ctx.fillStyle = '#3f3c5b';
     this.ctx.fillRect(x, y - pillarH - h / 4, pw / 2, pillarH);
 
-    // Pillar Outline
     this.ctx.strokeStyle = '#000';
     this.ctx.lineWidth = 2;
     this.ctx.strokeRect(x - pw / 2, y - pillarH - h / 4, pw, pillarH);
 
-    // Yellow Caution Stripe
     this.ctx.fillStyle = '#ffea00';
     this.ctx.fillRect(x - pw / 2, y - pillarH + 12, pw, 8);
 
-    // Text label on Pillar
     this.ctx.font = '10px "NeoDGM", sans-serif';
     this.ctx.fillStyle = '#000000';
     this.ctx.textAlign = 'center';
@@ -229,8 +229,56 @@ class IsometricParkingRenderer {
 
     this.ctx.fillStyle = `rgba(0, 240, 255, ${alpha})`;
     this.ctx.beginPath();
-    this.ctx.ellipse(x, y, w / 2 - 6, h / 2 - 6, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(x, y, w / 2 - 4, h / 2 - 4, 0, 0, Math.PI * 2);
     this.ctx.fill();
+  }
+
+  // Draw 8-bit Isometric Pixel Car directly with Canvas Primitives
+  drawDynamicPixelIsoCar(x, y, bodyColor) {
+    this.ctx.save();
+    
+    // Isometric Shadow
+    this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    this.ctx.beginPath();
+    this.ctx.ellipse(x, y + 10, 32, 14, 0, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // Car Body Main Block
+    this.ctx.fillStyle = bodyColor;
+    this.ctx.strokeStyle = '#000';
+    this.ctx.lineWidth = 3;
+
+    // Isometric 3D Car Body Box
+    this.ctx.beginPath();
+    this.ctx.moveTo(x - 30, y);
+    this.ctx.lineTo(x, y - 15);
+    this.ctx.lineTo(x + 30, y);
+    this.ctx.lineTo(x, y + 15);
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    // Car Roof / Cabin Box
+    this.ctx.fillStyle = bodyColor === '#22252a' ? '#333842' : '#e6e9f0';
+    this.ctx.beginPath();
+    this.ctx.moveTo(x - 16, y - 10);
+    this.ctx.lineTo(x, y - 22);
+    this.ctx.lineTo(x + 16, y - 10);
+    this.ctx.lineTo(x, y + 2);
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    // Windshield (Cyan Pixel Glass)
+    this.ctx.fillStyle = '#00f0ff';
+    this.ctx.fillRect(x - 8, y - 14, 16, 8);
+
+    // Wheels
+    this.ctx.fillStyle = '#000';
+    this.ctx.fillRect(x - 24, y + 6, 8, 8);
+    this.ctx.fillRect(x + 16, y + 6, 8, 8);
+
+    this.ctx.restore();
   }
 
   drawFloatingTag(x, y, text) {
@@ -238,7 +286,6 @@ class IsometricParkingRenderer {
     const textWidth = this.ctx.measureText(text).width;
     const padding = 6;
 
-    // Tag background box
     this.ctx.fillStyle = '#ff007f';
     this.ctx.strokeStyle = '#000000';
     this.ctx.lineWidth = 2;
@@ -246,7 +293,6 @@ class IsometricParkingRenderer {
     this.ctx.fillRect(x - textWidth / 2 - padding, y - 10, textWidth + padding * 2, 20);
     this.ctx.strokeRect(x - textWidth / 2 - padding, y - 10, textWidth + padding * 2, 20);
 
-    // Text
     this.ctx.fillStyle = '#ffffff';
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
