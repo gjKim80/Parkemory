@@ -76,17 +76,16 @@ body {
 
 .header-title {
   font-family: var(--font-retro-kr);
-  font-size: 1.15rem;
+  font-size: 1rem;
   color: var(--primary-yellow);
   text-shadow: 2px 2px 0 #000;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 /* 2-Player Sync Banner Bar */
@@ -253,8 +252,9 @@ body {
 }
 
 .btn-pixel-sm {
-  padding: 6px 10px;
-  font-size: 0.8rem;
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 /* Saved Location Card (TOP PRIORITY VISUAL) */
