@@ -1,9 +1,9 @@
 /* ============================================================
-   MY PARKING LOG - MAIN APPLICATION LOGIC (WITH 2-PLAYER SYNC)
+   MY PARKING LOG - MAIN APPLICATION LOGIC (TRANSPARENT PNG CARS)
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initial Vehicles (Benz E-Class & Kia Ray)
+  // Initial Vehicles (Benz E-Class & Kia Ray PNG Assets)
   const defaultVehicles = [
     {
       id: 'v_benz',
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
       color: 'silver',
       plate: '163어 3938',
       imageKey: 'benz_silver',
-      thumb: './assets/cars/benz_silver.jpg'
+      thumb: './assets/cars/benz_silver.png'
     },
     {
       id: 'v_ray',
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       color: 'black',
       plate: '59마 5773',
       imageKey: 'ray_black',
-      thumb: './assets/cars/ray_black.jpg'
+      thumb: './assets/cars/ray_black.png'
     }
   ];
 
@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let vehicles = JSON.parse(localStorage.getItem('mp_vehicles')) || defaultVehicles;
   let activeVehicleId = localStorage.getItem('mp_active_vehicle') || vehicles[0].id;
   
-  // Independent Parking status per vehicle
   let parkingByVehicle = JSON.parse(localStorage.getItem('mp_parking_map')) || defaultParkingByVehicle;
   let parkingHistory = JSON.parse(localStorage.getItem('mp_parking_history')) || [];
 
@@ -122,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Timer handle
   let timerInterval = null;
 
-  // Save State & Push to Cloud Sync
   function saveState(pushToCloud = true) {
     localStorage.setItem('mp_vehicles', JSON.stringify(vehicles));
     localStorage.setItem('mp_active_vehicle', activeVehicleId);
@@ -138,12 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Get active vehicle object
   function getActiveVehicle() {
     return vehicles.find(v => v.id === activeVehicleId) || vehicles[0];
   }
 
-  // Render Vehicle Selector Tabs (Benz & Ray & Custom)
   function renderVehicleTabs() {
     vehicleTabsContainer.innerHTML = '';
 
@@ -172,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Choice Buttons Handlers
   placeChoices.forEach(btn => {
     btn.addEventListener('click', () => {
       window.retroSound.playClick();
@@ -191,13 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Sound Toggle
   btnToggleSound.addEventListener('click', () => {
     const isEnabled = window.retroSound.toggleSound();
     btnToggleSound.textContent = isEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
   });
 
-  // Render Saved Parking Card for Active Vehicle (TOP PRIORITY VISUAL)
   function renderParkingCard() {
     const activeV = getActiveVehicle();
     if (!activeV) return;
@@ -237,16 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
       mapLink.classList.add('hidden');
     }
 
-    // Live Timer update
     updateParkingTimer(parkingData.timestamp);
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => updateParkingTimer(parkingData.timestamp), 1000);
 
-    // Update Isometric Canvas Renderer
     isoRenderer.render(parkingData);
   }
 
-  // Timer Calculation
   function updateParkingTimer(timestamp) {
     if (!timestamp) return;
     const diffMs = Date.now() - timestamp;
@@ -258,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
     parkingTimer.textContent = `⏳ 주차시간: ${hrs}시간 ${mins}분 ${secs}초`;
   }
 
-  // Save / Change Parking Location Action
   btnSaveParking.addEventListener('click', () => {
     window.retroSound.playSuccess();
     const activeV = getActiveVehicle();
@@ -304,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     parkingByVehicle[parkingObj.vehicleId] = parkingObj;
     parkingHistory.unshift(parkingObj);
 
-    saveState(true); // Save and Push to 2-Player Cloud Sync
+    saveState(true);
 
     btnSaveParking.disabled = false;
     btnSaveParking.textContent = '💾 선택된 차량 주차 위치 변경하기';
@@ -313,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
     alert(`🚗 [${parkingObj.vehicleName}] 주차 위치가 변경되었습니다!\n2인 공유 클라우드에도 실시간 반영되었습니다.`);
   }
 
-  // Reset Parking Action
   btnResetParking.addEventListener('click', () => {
     const activeV = getActiveVehicle();
     if (confirm(`[${activeV.name}] 출차 완료하셨나요? 주차 기록을 초기화합니다.`)) {
@@ -324,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Modal Handlers - 2-Player Sync Code
   btnOpenSyncModal.addEventListener('click', () => {
     window.retroSound.playClick();
     inputSyncRoomCode.value = window.cloudSync.getRoomCode();
@@ -346,7 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
     alert(`🔗 2인 공유 코드가 [${newCode.toUpperCase()}]로 설정되었습니다!`);
   });
 
-  // Vehicle Management Modal Handlers
   btnOpenVehicleModal.addEventListener('click', () => {
     window.retroSound.playClick();
     renderVehicleListModal();
@@ -375,13 +361,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.retroSound.playSuccess();
 
-    let thumb = './assets/cars/sedan_default.jpg';
+    let thumb = './assets/cars/sedan_default.png';
     let imageKey = 'sedan_default';
     if (type === 'suv') {
-      thumb = './assets/cars/suv_blue.jpg';
+      thumb = './assets/cars/suv_blue.png';
       imageKey = 'suv_blue';
     } else if (type === 'compact') {
-      thumb = './assets/cars/ray_black.jpg';
+      thumb = './assets/cars/ray_black.png';
       imageKey = 'ray_black';
     }
 
@@ -459,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Modal Handlers - History
   btnOpenHistoryModal.addEventListener('click', () => {
     window.retroSound.playClick();
     renderHistoryModal();
@@ -494,7 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // START 2-PLAYER CLOUD AUTO SYNC SUBSCRIPTION
   if (window.cloudSync) {
     lblRoomCode.textContent = window.cloudSync.getRoomCode();
 
@@ -528,7 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initial Run
   renderVehicleTabs();
   renderParkingCard();
 });

@@ -1,5 +1,5 @@
 /* ============================================================
-   8-BIT ISOMETRIC PARKING LOT CANVAS RENDERER (100% VISIBILITY GUARANTEED)
+   8-BIT ISOMETRIC PARKING LOT CANVAS RENDERER (TRANSPARENT PNG CARS)
    ============================================================ */
 
 class IsometricParkingRenderer {
@@ -8,9 +8,8 @@ class IsometricParkingRenderer {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
     
-    // Loaded car images cache & processed transparent canvases
+    // Loaded transparent PNG car images cache
     this.carImages = {};
-    this.processedCarCanvases = {};
     this.currentData = null;
     this.pulseAngle = 0;
 
@@ -23,10 +22,10 @@ class IsometricParkingRenderer {
 
   preloadCarImages() {
     const cars = {
-      'benz_silver': './assets/cars/benz_silver.jpg',
-      'ray_black': './assets/cars/ray_black.jpg',
-      'sedan_default': './assets/cars/sedan_default.jpg',
-      'suv_blue': './assets/cars/suv_blue.jpg'
+      'benz_silver': './assets/cars/benz_silver.png',
+      'ray_black': './assets/cars/ray_black.png',
+      'sedan_default': './assets/cars/sedan_default.png',
+      'suv_blue': './assets/cars/suv_blue.png'
     };
 
     Object.entries(cars).forEach(([key, src]) => {
@@ -34,41 +33,9 @@ class IsometricParkingRenderer {
       img.src = src;
       img.onload = () => {
         this.carImages[key] = img;
-        this.processedCarCanvases[key] = this.removeWhiteBackground(img);
         if (this.currentData) this.render(this.currentData);
       };
     });
-  }
-
-  removeWhiteBackground(img) {
-    try {
-      const offCanvas = document.createElement('canvas');
-      const w = img.naturalWidth || 200;
-      const h = img.naturalHeight || 200;
-      offCanvas.width = w;
-      offCanvas.height = h;
-      const offCtx = offCanvas.getContext('2d');
-      
-      offCtx.drawImage(img, 0, 0);
-
-      const imgData = offCtx.getImageData(0, 0, w, h);
-      const data = imgData.data;
-
-      // Chroma key: Filter white background (r, g, b > 215)
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        if (r > 215 && g > 215 && b > 215) {
-          data[i + 3] = 0;
-        }
-      }
-
-      offCtx.putImageData(imgData, 0, 0);
-      return offCanvas;
-    } catch (e) {
-      return img;
-    }
   }
 
   resizeCanvas() {
@@ -139,16 +106,16 @@ class IsometricParkingRenderer {
       // Draw Spotlight/Glow inside parking slot
       this.drawSpotlight(carPos.x, carPos.y, tileW, tileH);
 
-      // Render Car (Image sprite with fallback)
+      // Render Transparent PNG Car Image
       const carImageKey = parkingData.vehicleImageKey || 'benz_silver';
-      let drawable = this.processedCarCanvases[carImageKey] || this.carImages[carImageKey];
+      let img = this.carImages[carImageKey] || this.carImages['benz_silver'];
 
-      if (drawable) {
-        const carW = 100;
-        const carH = 100;
-        this.ctx.drawImage(drawable, carPos.x - carW / 2, carPos.y - carH / 2 - 14, carW, carH);
+      if (img && img.complete) {
+        const carW = 104;
+        const carH = 104;
+        this.ctx.drawImage(img, carPos.x - carW / 2, carPos.y - carH / 2 - 16, carW, carH);
       } else {
-        // Draw 8-Bit Pixel Car Sprite dynamically
+        // Dynamic Pixel Iso Car Fallback
         const isSilver = (carImageKey === 'benz_silver');
         this.drawDynamicPixelIsoCar(carPos.x, carPos.y - 12, isSilver ? '#d0d4dc' : '#22252a');
       }
@@ -233,22 +200,17 @@ class IsometricParkingRenderer {
     this.ctx.fill();
   }
 
-  // Draw 8-bit Isometric Pixel Car directly with Canvas Primitives
   drawDynamicPixelIsoCar(x, y, bodyColor) {
     this.ctx.save();
-    
-    // Isometric Shadow
     this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
     this.ctx.beginPath();
     this.ctx.ellipse(x, y + 10, 32, 14, 0, 0, Math.PI * 2);
     this.ctx.fill();
 
-    // Car Body Main Block
     this.ctx.fillStyle = bodyColor;
     this.ctx.strokeStyle = '#000';
     this.ctx.lineWidth = 3;
 
-    // Isometric 3D Car Body Box
     this.ctx.beginPath();
     this.ctx.moveTo(x - 30, y);
     this.ctx.lineTo(x, y - 15);
@@ -258,7 +220,6 @@ class IsometricParkingRenderer {
     this.ctx.fill();
     this.ctx.stroke();
 
-    // Car Roof / Cabin Box
     this.ctx.fillStyle = bodyColor === '#22252a' ? '#333842' : '#e6e9f0';
     this.ctx.beginPath();
     this.ctx.moveTo(x - 16, y - 10);
@@ -269,11 +230,9 @@ class IsometricParkingRenderer {
     this.ctx.fill();
     this.ctx.stroke();
 
-    // Windshield (Cyan Pixel Glass)
     this.ctx.fillStyle = '#00f0ff';
     this.ctx.fillRect(x - 8, y - 14, 16, 8);
 
-    // Wheels
     this.ctx.fillStyle = '#000';
     this.ctx.fillRect(x - 24, y + 6, 8, 8);
     this.ctx.fillRect(x + 16, y + 6, 8, 8);
