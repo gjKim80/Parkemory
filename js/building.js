@@ -23,9 +23,13 @@ class ParkemoryBuildingEngine {
     ];
   }
 
-  // Render Sectional Cutaway Building Rows
-  render(parkingMap, activeVehicle, vehicles) {
+  // Render Sectional Cutaway Building Rows (Guaranteed Rendering)
+  render(parkingMap = {}, activeVehicle = null, vehicles = []) {
+    if (!this.container) {
+      this.container = document.getElementById('buildingTowerContainer');
+    }
     if (!this.container) return;
+    
     this.container.innerHTML = '';
 
     this.floors.forEach(floor => {
@@ -61,7 +65,12 @@ class ParkemoryBuildingEngine {
       panel.id = `drawer_panel_${floor.id}`;
 
       // Vehicle selection dropdown options
-      const vehicleOptions = (vehicles || []).map(v => 
+      const vehicleList = (vehicles && vehicles.length > 0) ? vehicles : [
+        { id: 'v_benz', name: '벤츠 E클래스', plate: '163어 3938' },
+        { id: 'v_ray', name: '기아 레이', plate: '59마 5773' }
+      ];
+
+      const vehicleOptions = vehicleList.map(v => 
         `<option value="${v.id}" ${activeVehicle && activeVehicle.id === v.id ? 'selected' : ''}>${v.name} (${v.plate})</option>`
       ).join('');
 
