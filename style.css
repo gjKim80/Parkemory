@@ -1,33 +1,30 @@
 /* ============================================================
-   PARKEMORY (Parking + Memory) - MODERN 3D ISOMETRIC BUILDING DESIGN
+   PARKEMORY - TRUE 3D ISOMETRIC CUTAWAY BUILDING DESIGN SYSTEM
    ============================================================ */
 
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
 
 :root {
-  /* Modern Dark & Neon Pastel Palette */
-  --bg-main: #0b0f19;
-  --bg-card: #151c2e;
-  --bg-glass: rgba(21, 28, 46, 0.85);
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-glow: #00f0ff;
+  --bg-main: #070a12;
+  --bg-card: #111827;
+  --border-color: rgba(255, 255, 255, 0.12);
   
   --accent-cyan: #00f0ff;
   --accent-pink: #ff007f;
   --accent-green: #10b981;
   --accent-yellow: #f59e0b;
   --accent-purple: #8b5cf6;
+
+  --building-roof: #2a3447;
+  --building-front: #1e293b;
+  --building-side: #0f172a;
   
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --text-dark: #0f172a;
-  
-  --font-main: 'Pretendard', 'Outfit', -apple-system, sans-serif;
-  --font-num: 'Plus Jakarta Sans', sans-serif;
 
-  --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 240, 255, 0.3);
+  --font-main: 'Pretendard', 'Outfit', sans-serif;
+  --font-num: 'Plus Jakarta Sans', sans-serif;
 }
 
 * {
@@ -44,37 +41,36 @@ body {
   min-height: 100vh;
   padding-bottom: 60px;
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.15), transparent 40%),
-    radial-gradient(circle at 80% 100%, rgba(0, 240, 255, 0.1), transparent 40%);
+    radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.2), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 240, 255, 0.15), transparent 50%);
   background-attachment: fixed;
   overflow-x: hidden;
 }
 
-/* Container */
 .app-container {
   max-width: 480px;
   margin: 0 auto;
   padding: 16px;
 }
 
-/* Modern Glass Header */
+/* Header */
 .app-header {
-  background: var(--bg-glass);
+  background: rgba(17, 24, 39, 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 14px 18px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .brand-logo {
   font-family: 'Outfit', sans-serif;
-  font-weight: 800;
-  font-size: 1.3rem;
+  font-weight: 900;
+  font-size: 1.35rem;
   letter-spacing: -0.5px;
   background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
   -webkit-background-clip: text;
@@ -109,16 +105,15 @@ body {
 
 .btn-icon-text:active {
   transform: scale(0.96);
-  background: rgba(255, 255, 255, 0.12);
 }
 
-/* Sync Room Bar */
+/* Sync Bar */
 .sync-bar {
   background: rgba(0, 240, 255, 0.05);
   border: 1px solid rgba(0, 240, 255, 0.2);
   border-radius: 14px;
   padding: 10px 14px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -147,7 +142,7 @@ body {
   50% { transform: scale(1.3); opacity: 0.5; }
 }
 
-/* Registered Info Summary Card */
+/* Summary Card */
 .user-summary-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -195,161 +190,194 @@ body {
 }
 
 /* ============================================================
-   3D SECTIONAL CUTAWAY ISOMETRIC BUILDING LAYOUT
+   TRUE 3D ISOMETRIC CUTAWAY TOWER STACK & DRAWER SLIDER
    ============================================================ */
 
 .building-section {
   position: relative;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
 }
 
 .building-title-tag {
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-/* Vertical Building Tower Stack */
-.building-tower {
+/* 3D Perspective Viewport */
+.iso-building-viewport {
+  perspective: 1200px;
+  padding: 20px 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  perspective: 1000px;
+  align-items: center;
 }
 
-/* 3D Floor Drawer Row */
-.floor-drawer-row {
+/* 3D Isometric Tower Wrapper */
+.iso-tower-stack {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transform-style: preserve-3d;
+}
+
+/* 3D Floor Box Block */
+.iso-floor-block {
   position: relative;
-  background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 14px 16px;
+  width: 100%;
+  height: 64px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    -10px 12px 20px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 16px;
   cursor: pointer;
   user-select: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: rotateX(25deg) rotateY(-12deg) rotateZ(2deg);
+  transform-style: preserve-3d;
 }
 
-.floor-drawer-row:hover {
-  border-color: rgba(0, 240, 255, 0.4);
-  transform: translateY(-2px);
-}
-
-/* Floor Drawer - ACTIVE / PARKED STATE GLOW */
-.floor-drawer-row.parked-active {
-  background: linear-gradient(90deg, rgba(0, 240, 255, 0.15) 0%, rgba(21, 28, 46, 0.9) 100%);
+.iso-floor-block:hover {
+  transform: rotateX(20deg) rotateY(-8deg) translateZ(12px);
   border-color: var(--accent-cyan);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25), inset 0 0 10px rgba(0, 240, 255, 0.1);
 }
 
-.floor-drawer-row.above-ground {
-  border-left: 4px solid var(--accent-purple);
+/* 3D Roof Layer Cap */
+.iso-floor-block::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: #334155;
+  border-radius: 14px 14px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transform: skewX(-35deg);
+  transform-origin: bottom left;
+  opacity: 0.8;
 }
 
-.floor-drawer-row.underground {
-  border-left: 4px solid var(--accent-cyan);
+/* Ground vs Underground Distinction */
+.iso-floor-block.above-ground {
+  border-left: 6px solid var(--accent-purple);
 }
 
-/* Large Floor Number Display */
-.floor-number-badge {
+.iso-floor-block.underground {
+  border-left: 6px solid var(--accent-cyan);
+}
+
+/* Active Parked State Light Glow */
+.iso-floor-block.parked-active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, #0f172a 100%);
+  border-color: var(--accent-cyan);
+  box-shadow: 
+    0 0 25px rgba(0, 240, 255, 0.4),
+    -10px 12px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* 3D Giant Floor Number Badge */
+.iso-floor-number {
   font-family: var(--font-num);
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text-main);
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #fff;
   min-width: 60px;
-  letter-spacing: -0.5px;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+  letter-spacing: -1px;
 }
 
-.parked-active .floor-number-badge {
+.parked-active .iso-floor-number {
   color: var(--accent-cyan);
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  text-shadow: 0 0 15px var(--accent-cyan);
 }
 
-/* Center Floor Status Content */
-.floor-status-content {
+/* 3D Floor Content Info */
+.iso-floor-info {
   flex: 1;
   padding: 0 12px;
 }
 
-.floor-status-text {
-  font-size: 0.9rem;
-  font-weight: 600;
+.iso-floor-title {
+  font-size: 0.92rem;
+  font-weight: 700;
   color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.floor-sub-detail {
+.iso-floor-sub {
   font-size: 0.78rem;
   color: var(--text-muted);
   margin-top: 2px;
 }
 
-/* Right Drawer Slider Visual Handle */
-.drawer-handle {
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* 3D Drawer Handle Arrow */
+.iso-drawer-knob {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 800;
   color: var(--text-muted);
   transition: all 0.3s ease;
 }
 
-.parked-active .drawer-handle {
+.parked-active .iso-drawer-knob {
   background: var(--accent-cyan);
-  color: var(--text-dark);
+  color: #0f172a;
   border-color: var(--accent-cyan);
-  box-shadow: 0 0 10px var(--accent-cyan);
+  box-shadow: 0 0 12px var(--accent-cyan);
 }
 
 /* ============================================================
-   EXPANDABLE DRAWER PARKING PANEL (DRAWER SLIDE-OUT)
+   3D SLIDING DRAWER EXPANDED PANEL
    ============================================================ */
 
-.drawer-expanded-panel {
+.iso-drawer-panel {
   max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
   opacity: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   background: #0f172a;
-  border-radius: 0 0 16px 16px;
-  margin-top: -8px;
-  border: 1px solid var(--accent-cyan);
-  border-top: none;
+  border: 2px solid var(--accent-cyan);
+  border-radius: 16px;
+  margin-top: -6px;
+  margin-bottom: 6px;
   padding: 0 16px;
+  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.2);
 }
 
-.drawer-expanded-panel.open {
-  max-height: 400px;
+.iso-drawer-panel.open {
+  max-height: 420px;
   opacity: 1;
-  padding: 16px;
-  margin-bottom: 8px;
+  padding: 18px;
 }
 
-/* Form Controls in Drawer Panel */
 .drawer-form-group {
   margin-bottom: 12px;
 }
 
 .drawer-form-label {
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent-cyan);
   margin-bottom: 6px;
   display: block;
@@ -364,7 +392,6 @@ body {
   color: #fff;
   font-size: 0.88rem;
   outline: none;
-  transition: border-color 0.2s ease;
 }
 
 .modern-input:focus {
@@ -375,14 +402,14 @@ body {
   width: 100%;
   background: linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%);
   color: #0f172a;
-  font-weight: 700;
-  font-size: 0.92rem;
+  font-weight: 800;
+  font-size: 0.95rem;
   padding: 12px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.1s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 14px rgba(0, 240, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.35);
 }
 
 .btn-park-submit:active {
@@ -394,7 +421,7 @@ body {
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #ef4444;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
   padding: 10px;
   border-radius: 10px;
@@ -402,10 +429,7 @@ body {
   margin-top: 8px;
 }
 
-/* ============================================================
-   SUCCESS TOAST NOTIFICATION ("주차완료!")
-   ============================================================ */
-
+/* Toast Notification */
 .toast-notification {
   position: fixed;
   top: 20px;
@@ -415,8 +439,8 @@ body {
   color: #ffffff;
   padding: 12px 24px;
   border-radius: 30px;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 800;
+  font-size: 0.98rem;
   box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
   z-index: 9999;
   opacity: 0;
@@ -429,17 +453,14 @@ body {
   opacity: 1;
 }
 
-/* ============================================================
-   MODALS (ONBOARDING & VEHICLE / SYNC SETTINGS)
-   ============================================================ */
-
+/* Modals */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(11, 15, 25, 0.85);
+  background: rgba(7, 10, 18, 0.85);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -463,7 +484,7 @@ body {
   width: 100%;
   max-width: 440px;
   padding: 24px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   transform: scale(0.95);
   transition: transform 0.25s ease;
 }
