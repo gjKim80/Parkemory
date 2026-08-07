@@ -2,148 +2,133 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parkemory | 3D Isometric Parking Memory</title>
-  <meta name="description" content="다층 주차 빌딩 3D 투시도 서랍 입차 애니메이션으로 주차 위치를 쉽고 명확하게 기억하는 Parkemory 모바일 웹앱">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Parkemory — 3D 주차 메모리</title>
+  <meta name="description" content="Parkemory: 3D 실린더 타워로 주차 위치를 저장하는 스마트 모바일 웹앱">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+<div class="app-root">
 
-  <div class="app-container">
-    
-    <!-- Modern Header -->
-    <header class="app-header">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">P</div>
       <div>
-        <div class="brand-logo">PARKEMORY</div>
-        <div class="brand-subtitle">Parking + Memory Log</div>
+        <div class="brand-name">PARKEMORY</div>
+        <div class="brand-sub">Parking + Memory</div>
       </div>
-      <div class="header-btn-group">
-        <button id="btnToggleSound" class="btn-icon-text">🔊 Sound</button>
-        <button id="btnOpenOnboarding" class="btn-icon-text" style="border-color:var(--accent-cyan);">⚙️ 설정 / 차량관리</button>
-      </div>
-    </header>
-
-    <!-- 2-Player Cloud Sync Banner -->
-    <div class="sync-bar">
-      <div class="sync-status">
-        <span class="sync-dot"></span> 2인 실시간 동기화
-      </div>
-      <button id="btnOpenSyncModal" class="btn-icon-text" style="padding:4px 10px; font-size:0.75rem;">
-        공유코드: <strong id="lblRoomCode" style="color:var(--accent-yellow);">PARK-2026</strong>
-      </button>
     </div>
+    <div class="header-btns">
+      <button id="btnSound" class="btn-pill">🔊 Sound</button>
+      <button id="btnSettings" class="btn-pill accent">⚙️ 설정</button>
+    </div>
+  </header>
 
-    <!-- Active User & Vehicle Summary Card -->
-    <section class="user-summary-card">
-      <div class="vehicle-info-pill">
-        <div class="vehicle-avatar">
-          <img id="activeVehicleThumb" src="./assets/cars/benz_silver.png" alt="차량">
-        </div>
-        <div>
-          <div id="activeVehicleName" class="vehicle-meta-title">벤츠 E클래스</div>
-          <div id="activeVehiclePlate" class="vehicle-meta-sub">163어 3938</div>
-        </div>
-      </div>
-      <div style="text-align:right;">
-        <span style="font-size:0.72rem; color:var(--text-muted); font-weight:600;">자주 가는 장소</span>
-        <div id="lblFavPlace" style="font-size:0.88rem; font-weight:700; color:var(--accent-cyan);">우리집 지하주차장</div>
-      </div>
-    </section>
-
-    <!-- MAIN 3D SECTIONAL CUTAWAY BUILDING TOWER -->
-    <main class="building-section">
-      <div class="building-title-tag">
-        <span>3D ISOMETRIC BUILDING</span>
-        <span style="color:var(--accent-cyan); font-size:0.75rem;">층 선택시 서랍 입차</span>
-      </div>
-
-      <!-- Vertical Tower Container (Always Rendered) -->
-      <div id="buildingTowerContainer" class="building-tower">
-        <!-- Rendered by js/building.js -->
-      </div>
-    </main>
-
+  <!-- Sync Bar -->
+  <div class="sync-bar">
+    <div class="sync-live">
+      <span class="sync-dot"></span> 2인 실시간 동기화
+    </div>
+    <button id="btnSync" class="btn-pill" style="padding:4px 9px;font-size:.72rem;">
+      공유코드: <strong id="lblRoom" style="color:#fbbf24;">PARK-2026</strong>
+    </button>
   </div>
 
-  <!-- Modal 1: Onboarding & Settings & Vehicle Management Modal -->
-  <div id="onboardingModal" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2 class="modal-title">⚙️ 설정 및 차량 관리</h2>
-        <button id="btnCloseOnboarding" class="modal-close-btn">✕</button>
+  <!-- Active Vehicle Card -->
+  <div class="vehicle-card">
+    <div class="vc-left">
+      <div class="vc-thumb"><img id="vcImg" src="./assets/cars/benz_silver.png" alt="차량"></div>
+      <div>
+        <div id="vcName" class="vc-name">벤츠 E클래스</div>
+        <div id="vcPlate" class="vc-plate">163어 3938</div>
       </div>
-
-      <!-- 1. Favorite Place Setting -->
-      <div class="drawer-form-group" style="margin-bottom:18px;">
-        <label class="drawer-form-label">자주 주차하는 장소명</label>
-        <input type="text" id="inputFavPlace" class="modern-input" placeholder="예: 우리집 지하주차장, 회사 타워">
-      </div>
-
-      <!-- 2. Registered Vehicles List -->
-      <div class="drawer-form-group">
-        <label class="drawer-form-label" style="display:flex; justify-content:space-between; align-items:center;">
-          <span>등록된 차량 목록</span>
-          <span style="font-size:0.75rem; color:var(--text-muted);">원터치 선택</span>
-        </label>
-        <div id="modalVehicleListContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
-          <!-- Dynamic Vehicle Items -->
-        </div>
-      </div>
-
-      <!-- 3. Add New Vehicle Form Toggle Button -->
-      <button id="btnToggleAddVehicleForm" type="button" class="btn-icon-text" style="width:100%; justify-content:center; margin-bottom:14px; background:rgba(0, 240, 255, 0.1); border-color:var(--accent-cyan); color:var(--accent-cyan);">
-        ➕ 새 차량 추가하기
-      </button>
-
-      <!-- Sub-Form for New Vehicle Creation -->
-      <div id="addVehicleSubForm" class="hidden" style="background:#0f172a; border:1px dashed var(--accent-cyan); border-radius:14px; padding:14px; margin-bottom:14px;">
-        <div style="font-size:0.85rem; font-weight:700; color:var(--accent-cyan); margin-bottom:10px;">신규 차량 정보 입력</div>
-        <div class="drawer-form-group">
-          <label class="drawer-form-label">차량 별명 / 모델명</label>
-          <input type="text" id="inputNewVehicleName" class="modern-input" placeholder="예: 제네시스 G80, 카니발, 레이">
-        </div>
-        <div class="drawer-form-group">
-          <label class="drawer-form-label">차량 번호</label>
-          <input type="text" id="inputNewVehiclePlate" class="modern-input" placeholder="예: 123가 4567">
-        </div>
-        <button id="btnSubmitNewVehicle" type="button" class="btn-park-submit">
-          ✅ 신규 차량 등록
-        </button>
-      </div>
-
-      <button id="btnSaveOnboarding" type="button" class="btn-park-submit">
-        ✅ 설정 완료
-      </button>
+    </div>
+    <div>
+      <div class="vc-place-label">자주 가는 장소</div>
+      <div id="vcPlace" class="vc-place">우리집 지하주차장</div>
     </div>
   </div>
 
-  <!-- Modal 2: 2-Player Shared Sync Code Modal -->
-  <div id="syncModal" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2 class="modal-title">🔗 2인 실시간 공유 설정</h2>
-        <button id="btnCloseSyncModal" class="modal-close-btn">✕</button>
-      </div>
-
-      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.4;">
-        두 사람이 **동일한 공유 비밀 코드**를 공유하면 서로의 주차 위치가 3D 빌딩 투시도에 실시간으로 반영됩니다!
-      </div>
-
-      <div class="drawer-form-group">
-        <label class="drawer-form-label">공유 비밀 코드 (Sync Room Code)</label>
-        <input type="text" id="inputSyncCode" class="modern-input" value="PARK-2026" style="font-size:1.1rem; text-transform:uppercase;">
-      </div>
-
-      <button id="btnSaveSyncCode" type="button" class="btn-park-submit" style="margin-top:10px;">
-        ✅ 공유 코드 적용하기
-      </button>
+  <!-- 3D Building Tower Canvas -->
+  <div class="building-section">
+    <div class="building-label">
+      <span>3D ISOMETRIC BUILDING TOWER</span>
+      <span style="color:var(--cyan);font-size:.72rem;">층 선택 → 서랍 입차</span>
+    </div>
+    <div class="building-canvas-wrapper">
+      <canvas id="buildingCanvas"></canvas>
     </div>
   </div>
 
-  <!-- JavaScript Modules -->
-  <script src="./js/sound.js"></script>
-  <script src="./js/sync.js"></script>
-  <script src="./js/building.js"></script>
-  <script src="./js/app.js"></script>
+  <!-- Floor Drawer List -->
+  <div id="floorList" class="floor-list"></div>
+
+</div><!-- /app-root -->
+
+<!-- Modal: Settings + Vehicle Management -->
+<div id="modalSettings" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">⚙️ 설정 및 차량 관리</div>
+      <button id="btnCloseSettings" class="modal-close">✕</button>
+    </div>
+
+    <div class="panel-group">
+      <label class="panel-label">자주 주차하는 장소명</label>
+      <input id="inputPlace" class="panel-input" type="text" placeholder="예: 우리집 지하주차장, 회사 타워">
+    </div>
+
+    <div class="panel-group" style="margin-top:14px;">
+      <label class="panel-label" style="display:flex;justify-content:space-between;">
+        <span>등록된 차량 목록</span>
+        <span style="font-size:.68rem;color:var(--muted);">선택 / 삭제 가능</span>
+      </label>
+      <div id="vehList"></div>
+    </div>
+
+    <button id="btnToggleAddVeh" class="btn-pill accent" style="width:100%;justify-content:center;margin:8px 0 12px;">
+      ➕ 새 차량 추가하기
+    </button>
+
+    <div id="addVehForm" class="add-veh-form hidden">
+      <div class="panel-group">
+        <label class="panel-label">차량 별명 / 모델명</label>
+        <input id="inputVehName" class="panel-input" type="text" placeholder="예: 벤츠 E클래스, 카니발, 레이">
+      </div>
+      <div class="panel-group">
+        <label class="panel-label">차량 번호</label>
+        <input id="inputVehPlate" class="panel-input" type="text" placeholder="예: 163어 3938">
+      </div>
+      <button id="btnAddVeh" class="btn-park" style="margin-top:4px;">✅ 차량 등록</button>
+    </div>
+
+    <button id="btnSaveSettings" class="btn-park" style="margin-top:6px;">✅ 저장 완료</button>
+  </div>
+</div>
+
+<!-- Modal: Sync Code -->
+<div id="modalSync" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">🔗 2인 공유 동기화 설정</div>
+      <button id="btnCloseSync" class="modal-close">✕</button>
+    </div>
+    <p style="font-size:.84rem;color:var(--muted);margin-bottom:14px;line-height:1.5;">
+      두 사람이 동일한 코드를 입력하면 서로의 주차 위치가 실시간으로 반영됩니다.
+    </p>
+    <div class="panel-group">
+      <label class="panel-label">공유 비밀 코드</label>
+      <input id="inputSyncCode" class="panel-input" type="text" value="PARK-2026"
+        style="text-transform:uppercase;font-family:var(--font-num);font-size:1.05rem;">
+    </div>
+    <button id="btnSaveSync" class="btn-park" style="margin-top:6px;">✅ 코드 적용</button>
+  </div>
+</div>
+
+<script src="./js/sound.js"></script>
+<script src="./js/sync.js"></script>
+<script src="./js/building.js"></script>
+<script src="./js/app.js"></script>
 </body>
 </html>
