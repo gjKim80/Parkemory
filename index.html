@@ -19,7 +19,7 @@
       </div>
       <div class="header-btn-group">
         <button id="btnToggleSound" class="btn-icon-text">🔊 Sound</button>
-        <button id="btnOpenOnboarding" class="btn-icon-text" style="border-color:var(--accent-cyan);">⚙️ 설정</button>
+        <button id="btnOpenOnboarding" class="btn-icon-text" style="border-color:var(--accent-cyan);">⚙️ 설정 / 차량관리</button>
       </div>
     </header>
 
@@ -57,7 +57,7 @@
         <span style="color:var(--accent-cyan); font-size:0.75rem;">층 선택시 서랍 입차</span>
       </div>
 
-      <!-- Vertical Tower Container -->
+      <!-- Vertical Tower Container (Always Rendered) -->
       <div id="buildingTowerContainer" class="building-tower">
         <!-- Rendered by js/building.js -->
       </div>
@@ -65,40 +65,59 @@
 
   </div>
 
-  <!-- Modal 1: Onboarding & Settings Modal -->
+  <!-- Modal 1: Onboarding & Settings & Vehicle Management Modal -->
   <div id="onboardingModal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 class="modal-title">⚙️ Parkemory 초기 설정</h2>
+        <h2 class="modal-title">⚙️ 설정 및 차량 관리</h2>
         <button id="btnCloseOnboarding" class="modal-close-btn">✕</button>
       </div>
 
-      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.4;">
-        자주 이용하는 차량과 주차 장소 정보를 등록해주세요. 어디에 주차했는지 한눈에 3D 빌딩 서랍으로 기록해 드립니다!
-      </div>
-
-      <div class="drawer-form-group">
-        <label class="drawer-form-label">차량 별명 / 모델명</label>
-        <input type="text" id="inputVehicleName" class="modern-input" placeholder="예: 벤츠 E클래스, 레이, 패밀리카">
-      </div>
-
-      <div class="drawer-form-group">
-        <label class="drawer-form-label">차량 번호</label>
-        <input type="text" id="inputVehiclePlate" class="modern-input" placeholder="예: 163어 3938, 59마 5773">
-      </div>
-
-      <div class="drawer-form-group">
+      <!-- 1. Favorite Place Setting -->
+      <div class="drawer-form-group" style="margin-bottom:18px;">
         <label class="drawer-form-label">자주 주차하는 장소명</label>
         <input type="text" id="inputFavPlace" class="modern-input" placeholder="예: 우리집 지하주차장, 회사 타워">
       </div>
 
-      <button id="saveOnboardingBtn" type="button" class="btn-park-submit" style="margin-top:10px;">
-        ✅ 설정 저장하기
+      <!-- 2. Registered Vehicles List -->
+      <div class="drawer-form-group">
+        <label class="drawer-form-label" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>등록된 차량 목록</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">원터치 선택</span>
+        </label>
+        <div id="modalVehicleListContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
+          <!-- Dynamic Vehicle Items -->
+        </div>
+      </div>
+
+      <!-- 3. Add New Vehicle Form Toggle Button -->
+      <button id="btnToggleAddVehicleForm" type="button" class="btn-icon-text" style="width:100%; justify-content:center; margin-bottom:14px; background:rgba(0, 240, 255, 0.1); border-color:var(--accent-cyan); color:var(--accent-cyan);">
+        ➕ 새 차량 추가하기
+      </button>
+
+      <!-- Sub-Form for New Vehicle Creation -->
+      <div id="addVehicleSubForm" class="hidden" style="background:#0f172a; border:1px dashed var(--accent-cyan); border-radius:14px; padding:14px; margin-bottom:14px;">
+        <div style="font-size:0.85rem; font-weight:700; color:var(--accent-cyan); margin-bottom:10px;">신규 차량 정보 입력</div>
+        <div class="drawer-form-group">
+          <label class="drawer-form-label">차량 별명 / 모델명</label>
+          <input type="text" id="inputNewVehicleName" class="modern-input" placeholder="예: 제네시스 G80, 카니발, 레이">
+        </div>
+        <div class="drawer-form-group">
+          <label class="drawer-form-label">차량 번호</label>
+          <input type="text" id="inputNewVehiclePlate" class="modern-input" placeholder="예: 123가 4567">
+        </div>
+        <button id="btnSubmitNewVehicle" type="button" class="btn-park-submit">
+          ✅ 신규 차량 등록
+        </button>
+      </div>
+
+      <button id="btnSaveOnboarding" type="button" class="btn-park-submit">
+        ✅ 설정 완료
       </button>
     </div>
   </div>
 
-  <!-- Modal 2: 2-Player Cloud Sync Code Modal -->
+  <!-- Modal 2: 2-Player Shared Sync Code Modal -->
   <div id="syncModal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">

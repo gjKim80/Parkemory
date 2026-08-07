@@ -1,5 +1,5 @@
 /* ============================================================
-   PARKEMORY - MAIN APP CONTROLLER WITH ONBOARDING & CLOUD SYNC
+   PARKEMORY - MAIN APP CONTROLLER WITH ONBOARDING & VEHICLE MGMT
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -54,14 +54,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnToggleSound = document.getElementById('btnToggleSound');
   const lblRoomCode = document.getElementById('lblRoomCode');
 
-  // Modals
+  // Onboarding & Vehicle Mgmt Modal Elements
   const onboardingModal = document.getElementById('onboardingModal');
   const btnCloseOnboarding = document.getElementById('btnCloseOnboarding');
-  const inputVehicleName = document.getElementById('inputVehicleName');
-  const inputVehiclePlate = document.getElementById('inputVehiclePlate');
   const inputFavPlace = document.getElementById('inputFavPlace');
+  const modalVehicleListContainer = document.getElementById('modalVehicleListContainer');
+  const btnToggleAddVehicleForm = document.getElementById('btnToggleAddVehicleForm');
+  const addVehicleSubForm = document.getElementById('addVehicleSubForm');
+  const inputNewVehicleName = document.getElementById('inputNewVehicleName');
+  const inputNewVehiclePlate = document.getElementById('inputNewVehiclePlate');
+  const btnSubmitNewVehicle = document.getElementById('btnSubmitNewVehicle');
   const btnSaveOnboarding = document.getElementById('btnSaveOnboarding');
 
+  // Sync Modal Elements
   const syncModal = document.getElementById('syncModal');
   const btnCloseSyncModal = document.getElementById('btnCloseSyncModal');
   const inputSyncCode = document.getElementById('inputSyncCode');
@@ -99,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lblFavPlace.textContent = favoritePlace;
   }
 
-  // Render 3D Building Tower
+  // Render 3D Building Tower (Guaranteed Execution)
   function renderBuilding() {
     updateSummaryDisplay();
     buildingEngine.render(parkingMap, getActiveVehicle(), vehicles);
@@ -139,7 +144,69 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToggleSound.textContent = isEnabled ? '🔊 Sound' : '🔇 Sound';
   });
 
-  // Onboarding Modal Handlers
+  // Render Vehicle List inside Modal
+  function renderModalVehicleList() {
+    if (!modalVehicleListContainer) return;
+    modalVehicleListContainer.innerHTML = '';
+
+    vehicles.forEach(v => {
+      const isSelected = (v.id === activeVehicleId);
+      const item = document.createElement('div');
+      item.style.cssText = `
+        background: ${isSelected ? 'rgba(0, 240, 255, 0.12)' : '#0f172a'};
+        border: 1px solid ${isSelected ? 'var(--accent-cyan)' : 'rgba(255,255,255,0.1)'};
+        border-radius: 12px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      `;
+
+      item.innerHTML = `
+        <div>
+          <div style="font-weight:700; color:#fff; font-size:0.9rem;">
+            ${v.name} ${isSelected ? '<span style="color:var(--accent-cyan); font-size:0.75rem;">(선택됨)</span>' : ''}
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-num);">${v.plate}</div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn-select-v btn-icon-text" data-id="${v.id}" style="padding:4px 8px; font-size:0.75rem;">선택</button>
+          ${vehicles.length > 1 ? `<button type="button" class="btn-delete-v btn-icon-text" data-id="${v.id}" style="padding:4px 8px; font-size:0.75rem; color:#ef4444; border-color:rgba(239, 68, 68, 0.3);">삭제</button>` : ''}
+        </div>
+      `;
+
+      modalVehicleListContainer.appendChild(item);
+    });
+
+    // Select vehicle event
+    modalVehicleListContainer.querySelectorAll('.btn-select-v').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        if (window.retroSound) window.retroSound.playClick();
+        activeVehicleId = e.target.dataset.id;
+        saveState(false);
+        renderModalVehicleList();
+        renderBuilding();
+      });
+    });
+
+    // Delete vehicle event
+    modalVehicleListContainer.querySelectorAll('.btn-delete-v').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        if (window.retroSound) window.retroSound.playReset();
+        const idToDelete = e.target.dataset.id;
+        vehicles = vehicles.filter(v => v.id !== idToDelete);
+        delete parkingMap[idToDelete];
+        if (activeVehicleId === idToDelete) {
+          activeVehicleId = vehicles[0].id;
+        }
+        saveState(true);
+        renderModalVehicleList();
+        renderBuilding();
+      });
+    });
+  }
+
+  // Onboarding Modal Open/Close Handlers
   btnOpenOnboarding.addEventListener('click', () => {
     openOnboardingModal();
   });
@@ -149,28 +216,60 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function openOnboardingModal() {
-    const activeV = getActiveVehicle();
-    inputVehicleName.value = activeV ? activeV.name : '벤츠 E클래스';
-    inputVehiclePlate.value = activeV ? activeV.plate : '163어 3938';
     inputFavPlace.value = favoritePlace;
+    addVehicleSubForm.classList.add('hidden');
+    renderModalVehicleList();
     onboardingModal.classList.add('active');
   }
 
-  btnSaveOnboarding.addEventListener('click', () => {
-    const name = inputVehicleName.value.trim();
-    const plate = inputVehiclePlate.value.trim();
-    const place = inputFavPlace.value.trim();
+  // Toggle Sub-Form for New Vehicle Addition
+  btnToggleAddVehicleForm.addEventListener('click', () => {
+    if (window.retroSound) window.retroSound.playClick();
+    addVehicleSubForm.classList.toggle('hidden');
+  });
 
-    if (!name || !plate || !place) {
-      alert('모든 필수 정보를 입력해 주세요!');
+  // Submit New Vehicle Addition
+  btnSubmitNewVehicle.addEventListener('click', () => {
+    const name = inputNewVehicleName.value.trim();
+    const plate = inputNewVehiclePlate.value.trim();
+
+    if (!name || !plate) {
+      alert('차량 별명과 차량 번호를 모두 입력해주세요!');
       return;
     }
 
-    let activeV = getActiveVehicle();
-    activeV.name = name;
-    activeV.plate = plate;
-    favoritePlace = place;
+    if (window.retroSound) window.retroSound.playSuccess();
 
+    const newVehicle = {
+      id: 'v_' + Date.now(),
+      name: name,
+      plate: plate,
+      thumb: './assets/cars/benz_silver.png'
+    };
+
+    vehicles.push(newVehicle);
+    activeVehicleId = newVehicle.id;
+
+    saveState(true);
+
+    inputNewVehicleName.value = '';
+    inputNewVehiclePlate.value = '';
+    addVehicleSubForm.classList.add('hidden');
+
+    renderModalVehicleList();
+    renderBuilding();
+    buildingEngine.showToast(`🚗 [${name}] 차량이 새로 추가되었습니다!`);
+  });
+
+  btnSaveOnboarding.addEventListener('click', () => {
+    const place = inputFavPlace.value.trim();
+
+    if (!place) {
+      alert('자주 주차하는 장소명을 입력해 주세요!');
+      return;
+    }
+
+    favoritePlace = place;
     saveState(true);
     onboardingModal.classList.remove('active');
     renderBuilding();
@@ -223,10 +322,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Trigger Onboarding on First Launch
+  // ALWAYS RENDER 3D BUILDING AT START
+  renderBuilding();
+
+  // Trigger Onboarding Modal if First Launch
   if (isFirstLaunch) {
     openOnboardingModal();
-  } else {
-    renderBuilding();
   }
 });
