@@ -190,161 +190,102 @@ body {
 }
 
 /* ============================================================
-   TRUE 3D ISOMETRIC CUTAWAY TOWER STACK & DRAWER SLIDER
+   TRUE 3D ISOMETRIC CUTAWAY BUILDING CANVAS WRAPPER & OVERLAY
    ============================================================ */
 
-.building-section {
-  position: relative;
-  margin-bottom: 30px;
-}
-
-.building-title-tag {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* 3D Perspective Viewport */
-.iso-building-viewport {
-  perspective: 1200px;
-  padding: 20px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* 3D Isometric Tower Wrapper */
-.iso-tower-stack {
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  transform-style: preserve-3d;
-}
-
-/* 3D Floor Box Block */
-.iso-floor-block {
+.true-3d-building-wrapper {
   position: relative;
   width: 100%;
-  height: 64px;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #080b14;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  padding: 10px;
+}
+
+.building-cutaway-canvas {
+  width: 100%;
+  height: 480px;
+  display: block;
   border-radius: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    -10px 12px 20px rgba(0, 0, 0, 0.6),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15);
+}
+
+/* Building Floor Buttons Overlay List */
+.building-floor-overlay-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.building-floor-btn {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
   cursor: pointer;
   user-select: none;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform: rotateX(25deg) rotateY(-12deg) rotateZ(2deg);
-  transform-style: preserve-3d;
+  transition: all 0.2s ease;
 }
 
-.iso-floor-block:hover {
-  transform: rotateX(20deg) rotateY(-8deg) translateZ(12px);
+.building-floor-btn:hover {
   border-color: var(--accent-cyan);
+  background: #1e293b;
 }
 
-/* 3D Roof Layer Cap */
-.iso-floor-block::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background: #334155;
-  border-radius: 14px 14px 0 0;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transform: skewX(-35deg);
-  transform-origin: bottom left;
-  opacity: 0.8;
-}
-
-/* Ground vs Underground Distinction */
-.iso-floor-block.above-ground {
-  border-left: 6px solid var(--accent-purple);
-}
-
-.iso-floor-block.underground {
-  border-left: 6px solid var(--accent-cyan);
-}
-
-/* Active Parked State Light Glow */
-.iso-floor-block.parked-active {
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, #0f172a 100%);
+.building-floor-btn.active-parked {
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.15) 0%, #111827 100%);
   border-color: var(--accent-cyan);
-  box-shadow: 
-    0 0 25px rgba(0, 240, 255, 0.4),
-    -10px 12px 24px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
 }
 
-/* 3D Giant Floor Number Badge */
-.iso-floor-number {
+.floor-label-badge {
   font-family: var(--font-num);
-  font-size: 1.7rem;
-  font-weight: 900;
-  color: #fff;
-  min-width: 60px;
-  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
-  letter-spacing: -1px;
-}
-
-.parked-active .iso-floor-number {
-  color: var(--accent-cyan);
-  text-shadow: 0 0 15px var(--accent-cyan);
-}
-
-/* 3D Floor Content Info */
-.iso-floor-info {
-  flex: 1;
-  padding: 0 12px;
-}
-
-.iso-floor-title {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.iso-floor-sub {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-/* 3D Drawer Handle Arrow */
-.iso-drawer-knob {
-  width: 38px;
-  height: 38px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  color: var(--text-muted);
-  transition: all 0.3s ease;
+  color: #fff;
+  min-width: 50px;
 }
 
-.parked-active .iso-drawer-knob {
+.active-parked .floor-label-badge {
+  color: var(--accent-cyan);
+  text-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.floor-btn-info {
+  flex: 1;
+  padding: 0 10px;
+}
+
+.floor-empty-txt {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.floor-parked-txt {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.floor-drawer-icon {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.active-parked .floor-drawer-icon {
   background: var(--accent-cyan);
   color: #0f172a;
   border-color: var(--accent-cyan);
-  box-shadow: 0 0 12px var(--accent-cyan);
 }
 
 /* ============================================================
