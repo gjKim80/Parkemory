@@ -3,213 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>내 주차 위치 저장 | 8-Bit Isometric Parking Log</title>
-  <meta name="description" content="지하 주차장에서도 2인 실시간 공유 및 8비트 아이소메트릭 픽셀 아트로 차량 위치(층수, 기둥 번호)를 저장하고 조회하는 모바일 웹앱">
+  <title>Parkemory | 3D Isometric Parking Memory</title>
+  <meta name="description" content="다층 주차 빌딩 3D 투시도 서랍 입차 애니메이션으로 주차 위치를 쉽고 명확하게 기억하는 Parkemory 모바일 웹앱">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
   <div class="app-container">
     
-    <!-- Retro Header -->
-    <header class="retro-header">
-      <h1 class="header-title">PARKEMORY 8-BIT</h1>
-      <div class="header-actions">
-        <button id="btnToggleSound" class="btn-pixel btn-pixel-sm btn-pixel-secondary">Sound</button>
-        <button id="btnOpenVehicleModal" class="btn-pixel btn-pixel-sm btn-pixel-primary">차량관리</button>
-        <button id="btnOpenHistoryModal" class="btn-pixel btn-pixel-sm btn-pixel-yellow">기록</button>
+    <!-- Modern Header -->
+    <header class="app-header">
+      <div>
+        <div class="brand-logo">PARKEMORY</div>
+        <div class="brand-subtitle">Parking + Memory Log</div>
+      </div>
+      <div class="header-btn-group">
+        <button id="btnToggleSound" class="btn-icon-text">🔊 Sound</button>
+        <button id="btnOpenOnboarding" class="btn-icon-text" style="border-color:var(--accent-cyan);">⚙️ 설정</button>
       </div>
     </header>
 
     <!-- 2-Player Cloud Sync Banner -->
-    <div class="sync-banner-bar">
-      <span class="sync-status-badge">
-        <span class="pulse-effect sync-dot"></span> 2인 공유 연동됨
-      </span>
-      <button id="btnOpenSyncModal" class="sync-code-btn">공유코드: <strong id="lblRoomCode" style="color:var(--primary-yellow);">PARK-2026</strong></button>
+    <div class="sync-bar">
+      <div class="sync-status">
+        <span class="sync-dot"></span> 2인 실시간 동기화
+      </div>
+      <button id="btnOpenSyncModal" class="btn-icon-text" style="padding:4px 10px; font-size:0.75rem;">
+        공유코드: <strong id="lblRoomCode" style="color:var(--accent-yellow);">PARK-2026</strong>
+      </button>
     </div>
 
-    <!-- Vehicle Selection Tabs -->
-    <div id="vehicleTabsContainer" class="vehicle-tabs-container"></div>
-
-    <!-- TOP PRIORITY: CURRENT PARKING STATUS CARD -->
-    <section id="savedCard" class="pixel-box saved-card">
-      <div class="saved-card-header">
-        <span class="saved-badge">현재 주차 위치</span>
-        <span id="parkingTimer" class="parking-timer">0시간 0분 0초</span>
-      </div>
-
-      <div id="savedVehicleInfo" style="font-size:0.9rem; color:var(--neon-green); margin-bottom:4px;">
-        벤츠 E클래스 (163어 3938)
-      </div>
-
-      <div id="savedPlaceFloor" class="saved-location-main">
-        [집] 지하 2층 (B2)
-      </div>
-
-      <div id="savedDetail" class="saved-location-sub">
-        A-04 기둥 앞
-      </div>
-
-      <div id="savedMemo" class="saved-location-memo">
-        메모: 엘리베이터 바로 근처
-      </div>
-
-      <!-- 8-Bit Isometric Canvas Visualizer -->
-      <div class="isometric-canvas-wrapper">
-        <canvas id="isometricCanvas"></canvas>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; flex-wrap:wrap; gap:6px;">
-        <span id="savedTime" style="font-size:0.75rem; color:var(--text-muted);">저장됨</span>
-        <div style="display:flex; gap:8px;">
-          <a id="mapLink" href="#" target="_blank" class="btn-pixel btn-pixel-sm btn-pixel-secondary hidden">카카오지도</a>
-          <button id="btnResetParking" class="btn-pixel btn-pixel-sm btn-pixel-primary">출차 (초기화)</button>
+    <!-- Active User & Vehicle Summary Card -->
+    <section class="user-summary-card">
+      <div class="vehicle-info-pill">
+        <div class="vehicle-avatar">
+          <img id="activeVehicleThumb" src="./assets/cars/benz_silver.png" alt="차량">
         </div>
+        <div>
+          <div id="activeVehicleName" class="vehicle-meta-title">벤츠 E클래스</div>
+          <div id="activeVehiclePlate" class="vehicle-meta-sub">163어 3938</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <span style="font-size:0.72rem; color:var(--text-muted); font-weight:600;">자주 가는 장소</span>
+        <div id="lblFavPlace" style="font-size:0.88rem; font-weight:700; color:var(--accent-cyan);">우리집 지하주차장</div>
       </div>
     </section>
 
-    <!-- Empty State Banner -->
-    <div id="emptyCard" class="pixel-box text-center hidden">
-      <div style="font-size:1.8rem; margin-bottom:6px;">P</div>
-      <div id="emptyCardTitle" style="color:var(--primary-yellow); font-size:1.1rem; margin-bottom:4px;">주차 기록 없음</div>
-      <div style="color:var(--text-muted); font-size:0.85rem;">아래 위치 변경 메뉴에서 주차 층수와 기둥을 등록해주세요!</div>
-    </div>
-
-    <!-- LOWER SECTION: CHANGE LOCATION FORM -->
-    <main class="pixel-box">
-      <div class="pixel-box-title">
-        <span>위치 변경하기</span>
-        <span style="font-size:0.75rem; color:var(--neon-green);">REALTIME SYNC</span>
+    <!-- MAIN 3D SECTIONAL CUTAWAY BUILDING TOWER -->
+    <main class="building-section">
+      <div class="building-title-tag">
+        <span>3D ISOMETRIC BUILDING</span>
+        <span style="color:var(--accent-cyan); font-size:0.75rem;">층 선택시 서랍 입차</span>
       </div>
 
-      <!-- 1. Place Type -->
-      <div class="form-group">
-        <label class="form-label">1. 장소 구분</label>
-        <div class="btn-grid">
-          <button type="button" class="btn-choice btn-place-choice active" data-value="집">집</button>
-          <button type="button" class="btn-choice btn-place-choice" data-value="회사">회사</button>
-          <button type="button" class="btn-choice btn-place-choice" data-value="기타">기타</button>
-        </div>
+      <!-- Vertical Tower Container -->
+      <div id="buildingTowerContainer" class="building-tower">
+        <!-- Rendered by js/building.js -->
       </div>
-
-      <!-- 2. Floor Level -->
-      <div class="form-group">
-        <label class="form-label">2. 주차 층수</label>
-        <div class="btn-grid-floor">
-          <button type="button" class="btn-choice btn-floor-choice" data-value="지상 1F">지상 1F</button>
-          <button type="button" class="btn-choice btn-floor-choice" data-value="지상 2F">지상 2F</button>
-          <button type="button" class="btn-choice btn-floor-choice" data-value="지상 3F">지상 3F</button>
-          <button type="button" class="btn-choice btn-floor-choice" data-value="B1">지하 B1</button>
-          <button type="button" class="btn-choice btn-floor-choice active" data-value="B2">지하 B2</button>
-          <button type="button" class="btn-choice btn-floor-choice" data-value="B3">지하 B3</button>
-          <button type="button" class="btn-choice btn-floor-choice" data-value="B4">지하 B4</button>
-          <button type="button" class="btn-choice btn-floor-choice" data-value="B5">지하 B5</button>
-          <button type="button" class="btn-choice btn-floor-choice" data-value="B6">지하 B6</button>
-        </div>
-      </div>
-
-      <!-- 3. Detail & Note -->
-      <div class="form-group">
-        <label class="form-label">3. 세부 구역 및 기둥 번호</label>
-        <input type="text" id="detailInput" class="retro-input" placeholder="예: A-04 기둥 앞, C-12 구역" value="A-04">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">4. 추가 메모 (선택)</label>
-        <input type="text" id="noteInput" class="retro-input" placeholder="예: 3호기 엘리베이터 입구 근처">
-      </div>
-
-      <!-- 5. GPS Checkbox -->
-      <div class="form-group">
-        <label class="checkbox-label">
-          <input type="checkbox" id="gpsCheckbox" checked>
-          <span>저장 시 GPS 위치 함께 기록</span>
-        </label>
-      </div>
-
-      <!-- Submit CTA Button -->
-      <button type="button" id="btnSaveParking" class="btn-pixel btn-pixel-success" style="width:100%; font-size:1rem; padding:14px;">
-        주차 위치 저장하기
-      </button>
     </main>
 
   </div>
 
-  <!-- Modal 1: Vehicle Management Modal -->
-  <div id="vehicleModal" class="modal-overlay">
-    <div class="modal-box">
+  <!-- Modal 1: Onboarding & Settings Modal -->
+  <div id="onboardingModal" class="modal-backdrop">
+    <div class="modal-card">
       <div class="modal-header">
-        <h2 class="modal-title">차량 추가 / 삭제 관리</h2>
-        <button id="btnCloseVehicleModal" class="modal-close">X</button>
+        <h2 class="modal-title">⚙️ Parkemory 초기 설정</h2>
+        <button id="btnCloseOnboarding" class="modal-close-btn">✕</button>
       </div>
 
-      <div id="vehicleListContainer" class="vehicle-list"></div>
+      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.4;">
+        자주 이용하는 차량과 주차 장소 정보를 등록해주세요. 어디에 주차했는지 한눈에 3D 빌딩 서랍으로 기록해 드립니다!
+      </div>
 
-      <button id="btnShowAddVehicleForm" class="btn-pixel btn-pixel-yellow" style="width:100%; margin-bottom:12px;">
-        새 차량 추가하기
-      </button>
+      <div class="drawer-form-group">
+        <label class="drawer-form-label">차량 별명 / 모델명</label>
+        <input type="text" id="inputVehicleName" class="modern-input" placeholder="예: 벤츠 E클래스, 레이, 패밀리카">
+      </div>
 
-      <div id="addVehicleForm" class="hidden" style="background:#131221; border:2px dashed var(--neon-cyan); padding:14px;">
-        <div style="font-size:0.9rem; color:var(--neon-cyan); margin-bottom:10px;">신규 차량 정보 입력</div>
-        <div class="form-group">
-          <label class="form-label">차종 이름 / 모델명</label>
-          <input type="text" id="inputNewVehicleName" class="retro-input" placeholder="예: 제네시스 G80, 카니발, 아반떼">
-        </div>
-        <div class="form-group">
-          <label class="form-label">차량 번호</label>
-          <input type="text" id="inputNewVehiclePlate" class="retro-input" placeholder="예: 123가 4567">
-        </div>
-        <div class="form-group">
-          <label class="form-label">차량 종류</label>
-          <select id="selectNewVehicleType" class="retro-input">
-            <option value="sedan">세단 (Sedan)</option>
-            <option value="compact">경차 / 박스카 (Compact)</option>
-            <option value="suv">SUV / CUV</option>
-          </select>
-        </div>
-        <button id="btnSubmitNewVehicle" class="btn-pixel btn-pixel-success" style="width:100%;">
-          차량 추가 저장
-        </button>
+      <div class="drawer-form-group">
+        <label class="drawer-form-label">차량 번호</label>
+        <input type="text" id="inputVehiclePlate" class="modern-input" placeholder="예: 163어 3938, 59마 5773">
       </div>
-    </div>
-  </div>
 
-  <!-- Modal 2: 2-Player Shared Sync Code Modal -->
-  <div id="syncModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2 class="modal-title">2인 클라우드 공유 설정</h2>
-        <button id="btnCloseSyncModal" class="modal-close">X</button>
+      <div class="drawer-form-group">
+        <label class="drawer-form-label">자주 주차하는 장소명</label>
+        <input type="text" id="inputFavPlace" class="modern-input" placeholder="예: 우리집 지하주차장, 회사 타워">
       </div>
-      <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:14px;">
-        두 사람이 동일한 공유 비밀 코드를 입력하면 실시간으로 서로의 주차 위치가 동기화됩니다!
-      </div>
-      <div class="form-group">
-        <label class="form-label">공유 비밀 코드 (Sync Room Code)</label>
-        <input type="text" id="inputSyncRoomCode" class="retro-input" value="PARK-2026" style="font-family:var(--font-retro-en); font-size:1.1rem; text-transform:uppercase;">
-      </div>
-      <button id="btnSaveSyncCode" class="btn-pixel btn-pixel-success" style="width:100%;">
-        동기화 코드 적용하기
+
+      <button id="saveOnboardingBtn" type="button" class="btn-park-submit" style="margin-top:10px;">
+        ✅ 설정 저장하기
       </button>
     </div>
   </div>
 
-  <!-- Modal 3: History Log Modal -->
-  <div id="historyModal" class="modal-overlay">
-    <div class="modal-box">
+  <!-- Modal 2: 2-Player Cloud Sync Code Modal -->
+  <div id="syncModal" class="modal-backdrop">
+    <div class="modal-card">
       <div class="modal-header">
-        <h2 class="modal-title">주차 이력 히스토리 (최근 10건)</h2>
-        <button id="btnCloseHistoryModal" class="modal-close">X</button>
+        <h2 class="modal-title">🔗 2인 실시간 공유 설정</h2>
+        <button id="btnCloseSyncModal" class="modal-close-btn">✕</button>
       </div>
-      <div id="historyListContainer" class="history-list"></div>
+
+      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.4;">
+        두 사람이 **동일한 공유 비밀 코드**를 공유하면 서로의 주차 위치가 3D 빌딩 투시도에 실시간으로 반영됩니다!
+      </div>
+
+      <div class="drawer-form-group">
+        <label class="drawer-form-label">공유 비밀 코드 (Sync Room Code)</label>
+        <input type="text" id="inputSyncCode" class="modern-input" value="PARK-2026" style="font-size:1.1rem; text-transform:uppercase;">
+      </div>
+
+      <button id="btnSaveSyncCode" type="button" class="btn-park-submit" style="margin-top:10px;">
+        ✅ 공유 코드 적용하기
+      </button>
     </div>
   </div>
 
   <!-- JavaScript Modules -->
   <script src="./js/sound.js"></script>
-  <script src="./js/isometric.js"></script>
   <script src="./js/sync.js"></script>
+  <script src="./js/building.js"></script>
   <script src="./js/app.js"></script>
 </body>
 </html>
