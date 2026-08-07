@@ -1,10 +1,11 @@
 /* ============================================================
-   PARKEMORY - 3D SECTIONAL BUILDING & DRAWER ANIMATION ENGINE
+   PARKEMORY - TRUE 3D ISOMETRIC BUILDING & DRAWER RENDERER
    ============================================================ */
 
 class ParkemoryBuildingEngine {
   constructor(towerContainerId) {
-    this.container = document.getElementById(towerContainerId);
+    this.containerId = towerContainerId || 'buildingTowerContainer';
+    this.container = document.getElementById(this.containerId);
     this.openDrawerFloorId = null;
     this.onParkSubmit = null;
     this.onParkReset = null;
@@ -23,45 +24,52 @@ class ParkemoryBuildingEngine {
     ];
   }
 
-  // Render Sectional Cutaway Building Rows (Guaranteed Rendering)
+  // Render True 3D Isometric Cutaway Building Tower
   render(parkingMap = {}, activeVehicle = null, vehicles = []) {
     if (!this.container) {
-      this.container = document.getElementById('buildingTowerContainer');
+      this.container = document.getElementById(this.containerId);
     }
     if (!this.container) return;
     
     this.container.innerHTML = '';
 
+    // Create 3D Viewport Wrapper
+    const viewport = document.createElement('div');
+    viewport.className = 'iso-building-viewport';
+
+    const towerStack = document.createElement('div');
+    towerStack.className = 'iso-tower-stack';
+
     this.floors.forEach(floor => {
       // Find if any vehicle is parked on this floor
       const parkedVehicle = Object.values(parkingMap || {}).find(p => p && p.floor === floor.id);
 
-      // Create Floor Row Element
-      const row = document.createElement('div');
-      row.className = `floor-drawer-row ${floor.type === 'above' ? 'above-ground' : 'underground'} ${parkedVehicle ? 'parked-active' : ''}`;
-      row.dataset.floorId = floor.id;
+      // Create 3D Isometric Floor Block
+      const block = document.createElement('div');
+      block.className = `iso-floor-block ${floor.type === 'above' ? 'above-ground' : 'underground'} ${parkedVehicle ? 'parked-active' : ''}`;
+      block.dataset.floorId = floor.id;
 
-      // Status text
-      let statusHtml = '<span class="floor-status-text">빈 주차 공간</span>';
-      let subDetailHtml = '';
+      // Inner status title
+      let titleHtml = '<span class="iso-floor-title" style="color:var(--text-muted);">빈 주차 공간</span>';
+      let subHtml = '';
 
       if (parkedVehicle) {
-        statusHtml = `<span class="floor-status-text" style="color:var(--accent-cyan);">🚗 ${parkedVehicle.vehicleName} (${parkedVehicle.vehiclePlate})</span>`;
-        subDetailHtml = `<div class="floor-sub-detail">📍 ${parkedVehicle.detail || '구역 지정됨'} ${parkedVehicle.note ? '| ' + parkedVehicle.note : ''}</div>`;
+        titleHtml = `<span class="iso-floor-title" style="color:var(--accent-cyan);">🚗 ${parkedVehicle.vehicleName} (${parkedVehicle.vehiclePlate})</span>`;
+        subHtml = `<div class="iso-floor-sub">📍 ${parkedVehicle.detail || '구역 지정됨'} ${parkedVehicle.note ? '| ' + parkedVehicle.note : ''}</div>`;
       }
 
-      row.innerHTML = `
-        <div class="floor-number-badge">${floor.id}</div>
-        <div class="floor-status-content">
-          ${statusHtml}
-          ${subDetailHtml}
+      block.innerHTML = `
+        <div class="iso-floor-number">${floor.id}</div>
+        <div class="iso-floor-info">
+          ${titleHtml}
+          ${subHtml}
         </div>
-        <div class="drawer-handle">${parkedVehicle ? '✓' : '▼'}</div>
+        <div class="iso-drawer-knob">${parkedVehicle ? '✓' : '▼'}</div>
       `;
 
-      // Create Expandable Drawer Parking Panel
+      // Create 3D Sliding Drawer Panel
       const panel = document.createElement('div');
-      panel.className = `drawer-expanded-panel ${this.openDrawerFloorId === floor.id ? 'open' : ''}`;
+      panel.className = `iso-drawer-panel ${this.openDrawerFloorId === floor.id ? 'open' : ''}`;
       panel.id = `drawer_panel_${floor.id}`;
 
       // Vehicle selection dropdown options
@@ -75,8 +83,9 @@ class ParkemoryBuildingEngine {
       ).join('');
 
       panel.innerHTML = `
-        <div style="font-weight:700; color:#fff; margin-bottom:10px; font-size:0.88rem;">
-          ${floor.name} (${floor.id}) 서랍 주차
+        <div style="font-weight:800; color:#fff; margin-bottom:12px; font-size:0.92rem; display:flex; justify-content:space-between; align-items:center;">
+          <span>🏢 ${floor.name} (${floor.id}) 서랍 주차 공간</span>
+          <span style="font-size:0.75rem; color:var(--accent-cyan);">3D ISOMETRIC DRAWER</span>
         </div>
         <div class="drawer-form-group">
           <label class="drawer-form-label">주차할 차량 선택</label>
@@ -86,32 +95,32 @@ class ParkemoryBuildingEngine {
         </div>
         <div class="drawer-form-group">
           <label class="drawer-form-label">기둥 번호 및 위치 설명</label>
-          <input type="text" id="drawer_detail_${floor.id}" class="modern-input" placeholder="예: A-04 기둥 앞, 엘리베이터 근처" value="${parkedVehicle ? parkedVehicle.detail : 'A-04 기둥 앞'}">
+          <input type="text" id="drawer_detail_${floor.id}" class="modern-input" placeholder="예: A-04 기둥 앞, 3호기 엘리베이터 근처" value="${parkedVehicle ? parkedVehicle.detail : 'A-04 기둥 앞'}">
         </div>
         <div class="drawer-form-group">
           <label class="drawer-form-label">추가 메모 (선택)</label>
-          <input type="text" id="drawer_note_${floor.id}" class="modern-input" placeholder="예: 3호기 입구 오른쪽" value="${parkedVehicle && parkedVehicle.note ? parkedVehicle.note : ''}">
+          <input type="text" id="drawer_note_${floor.id}" class="modern-input" placeholder="예: 출구 우측 계단 앞" value="${parkedVehicle && parkedVehicle.note ? parkedVehicle.note : ''}">
         </div>
 
         <button type="button" class="btn-park-submit" data-floor="${floor.id}">
-          ${parkedVehicle ? '🔄 주차 위치 변경하기' : '🚗 서랍 속에 차 넣기 (주차완료)'}
+          ${parkedVehicle ? '🔄 주차 위치 변경하기' : '🚗 3D 서랍 속에 차 넣기 (주차완료)'}
         </button>
 
         ${parkedVehicle ? `<button type="button" class="btn-park-reset" data-floor="${floor.id}" data-vehicle-id="${parkedVehicle.vehicleId}">출차 (주차 해제)</button>` : ''}
       `;
 
-      // Attach Drawer Slide Open/Close Event
-      row.addEventListener('click', () => {
+      // Attach 3D Drawer Slide Open/Close Event
+      block.addEventListener('click', () => {
         if (window.retroSound) window.retroSound.playClick();
         if (this.openDrawerFloorId === floor.id) {
-          this.openDrawerFloorId = null; // Close if opened
+          this.openDrawerFloorId = null;
         } else {
-          this.openDrawerFloorId = floor.id; // Open selected drawer
+          this.openDrawerFloorId = floor.id;
         }
         this.render(parkingMap, activeVehicle, vehicles);
       });
 
-      // Attach Park Action inside Panel
+      // Attach Submit Event
       const submitBtn = panel.querySelector('.btn-park-submit');
       if (submitBtn) {
         submitBtn.addEventListener('click', (e) => {
@@ -127,7 +136,7 @@ class ParkemoryBuildingEngine {
         });
       }
 
-      // Attach Reset Action inside Panel
+      // Attach Reset Event
       const resetBtn = panel.querySelector('.btn-park-reset');
       if (resetBtn) {
         resetBtn.addEventListener('click', (e) => {
@@ -140,9 +149,12 @@ class ParkemoryBuildingEngine {
         });
       }
 
-      this.container.appendChild(row);
-      this.container.appendChild(panel);
+      towerStack.appendChild(block);
+      towerStack.appendChild(panel);
     });
+
+    viewport.appendChild(towerStack);
+    this.container.appendChild(viewport);
   }
 
   // Trigger Toast Notification ("주차완료!")
