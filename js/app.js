@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       timestamp: Date.now(),
     };
     save(); renderAll();
-    building.showToast('🎉 주차완료!');
+    building.showToast('주차완료!');
   };
 
   building.onUnpark = vehicleId => {
@@ -136,14 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
     inputVehName.value = ''; inputVehPlate.value = '';
     addVehForm.classList.add('hidden');
     save(true); renderVehList(); renderAll();
-    building.showToast(`🚗 [${name}] 차량 추가 완료!`);
+    building.showToast(`[${name}] 차량 추가 완료`);
   });
 
   document.getElementById('btnSaveSettings')?.addEventListener('click', () => {
     favoritePlace = inputPlace.value.trim() || favoritePlace;
     save(true); renderAll();
     modalSettings.classList.remove('show');
-    building.showToast('✅ 설정 저장 완료!');
+    building.showToast('설정 저장 완료');
   });
 
   /* ── Sync Modal ────────────────────────────────── */
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.cloudSync?.setRoomCode?.(code);
     document.getElementById('lblRoom').textContent = code;
     modalSync.classList.remove('show');
-    building.showToast(`🔗 공유 코드 [${code}] 적용 완료!`);
+    building.showToast(`공유 코드 [${code}] 적용 완료`);
   });
 
   /* ── Cloud Sync subscription ───────────────────── */

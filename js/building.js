@@ -84,11 +84,11 @@ class ParkemoryBuilding {
         <div class="floor-row-id">${floor.label}</div>
         <div class="floor-row-info">
           <div class="floor-row-status">${parked
-            ? `🚗 ${parked.vehicleName} (${parked.vehiclePlate})`
+            ? `${parked.vehicleName} (${parked.vehiclePlate})`
             : '빈 주차 공간'}</div>
-          ${parked ? `<div class="floor-row-detail">📍 ${parked.detail || ''}${parked.note ? ' | ' + parked.note : ''}</div>` : ''}
+          ${parked ? `<div class="floor-row-detail">${parked.detail || ''}${parked.note ? ' | ' + parked.note : ''}</div>` : ''}
         </div>
-        <div class="floor-row-badge">${parked ? '✓ 입차됨' : isOpen ? '▲ 닫기' : '서랍 열기 ▼'}</div>
+        <div class="floor-row-badge">${parked ? '입차됨' : isOpen ? '닫기' : '열기'}</div>
       `;
       row.addEventListener('click', () => {
         this.openFloor = (this.openFloor === floor.id) ? null : floor.id;
@@ -106,7 +106,7 @@ class ParkemoryBuilding {
          </option>`).join('');
 
       panel.innerHTML = `
-        <div class="panel-title">🏢 ${floor.name} (${floor.label}) 서랍 주차</div>
+        <div class="panel-title">${floor.name} (${floor.label}) 주차</div>
         <div class="panel-group">
           <label class="panel-label">주차할 차량</label>
           <select id="pSel_${floor.id}" class="panel-input">${opts}</select>
@@ -122,7 +122,7 @@ class ParkemoryBuilding {
             placeholder="예: 엘리베이터 바로 옆" value="${parked?.note ?? ''}">
         </div>
         <button class="btn-park" id="pBtn_${floor.id}">
-          🚗 ${parked ? '위치 변경하기' : '서랍에 차 넣기 (주차완료)'}
+          ${parked ? '위치 변경하기' : '주차 완료'}
         </button>
         ${parked ? `<button class="btn-unpark" id="pRst_${floor.id}" data-vid="${parked.vehicleId}">
           출차 (주차 해제)
@@ -275,12 +275,13 @@ class ParkemoryBuilding {
         ctx.restore();
       }
 
-      /* ─ Floor label */
+      /* ─ Floor label + Car name text */
       const palette = labelPalette[floor.type];
       const lc = parked  ? '#00f0ff'
                : floor.id === '1F' ? '#4ade80'
                : palette[i % palette.length];
 
+      // Floor number
       ctx.save();
       const fs = Math.max(20, Math.round(FLOOR_H * .55));
       ctx.font = `900 ${fs}px "Plus Jakarta Sans", sans-serif`;
@@ -288,17 +289,37 @@ class ParkemoryBuilding {
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       if (parked) { ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 18; }
-      ctx.fillText(floor.label, cx - RX * .88, fMidY + FLOOR_H * .08);
+      const floorLabelX = cx - RX * .88;
+      const floorLabelY = fMidY + FLOOR_H * .08;
+      ctx.fillText(floor.label, floorLabelX, floorLabelY);
+
+      // Car name — right next to the floor number
+      if (parked) {
+        const floorLabelW = ctx.measureText(floor.label).width;
+        ctx.shadowBlur = 0;
+        const ns = Math.max(11, Math.round(FLOOR_H * .27));
+        ctx.font = `800 ${ns}px "Plus Jakarta Sans", sans-serif`;
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 10;
+        ctx.fillText(parked.vehicleName, floorLabelX + floorLabelW + 8, floorLabelY);
+      } else if (isOpenD) {
+        const floorLabelW = ctx.measureText(floor.label).width;
+        const ns = Math.max(10, Math.round(FLOOR_H * .24));
+        ctx.font = `600 ${ns}px "Plus Jakarta Sans", sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.shadowBlur = 0;
+        ctx.fillText('입차 선택 중...', floorLabelX + floorLabelW + 8, floorLabelY);
+      }
       ctx.restore();
 
-      /* ─ Car tray */
+      /* ─ Tray glow strip (parked or open) */
       if (parked || isOpenD) {
         const trayLeft = cx + RX * .55;
         const trayTop  = fTopY + FLOOR_H * .1;
         const trayW    = RX * .95;
         const trayH    = FLOOR_H * .78;
         this._drawTray(ctx, trayLeft, trayTop, trayW, trayH, !!parked);
-        if (parked) this._drawCar(ctx, trayLeft, trayTop, trayW, trayH, parked);
       }
     }
 
